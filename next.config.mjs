@@ -1,7 +1,13 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // better-sqlite3 adalah modul native — jangan di-bundle oleh Next.js
-  serverExternalPackages: ['better-sqlite3'],
+  // Tetapkan root tracing ke folder proyek agar tidak salah menebak
+  // (mis. karena ada package-lock.json lain di folder induk saat build lokal).
+  outputFileTracingRoot: __dirname,
 };
 
 export default nextConfig;
