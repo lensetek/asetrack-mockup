@@ -38,6 +38,31 @@ Konfigurasi koneksi Supabase dibaca dari environment (`SUPABASE_URL`, `SUPABASE_
 | `/label` | **Cetak label QR**: QR level-H + teks cadangan, preset A4 (2×2 / 3×3 / 4×2), cetak nyata (`window.print`), tandai tercetak | FR-05, FR-06, FR-07, FR-08 |
 | `/scan` | **Scan & update**: simulasi scan kamera, ketik kode manual, error menuntun, 3 aksi (kondisi/lokasi/pinjam-kembali), audit trail | FR-09 s.d. FR-13 |
 | `/laporan` | **Laporan opname**: filter, ringkasan per lokasi/kondisi, unduh CSV (ringkasan & rincian), tercatat sebagai "export" | FR-14 |
+| `/upgrade` | **Upgrade Pro**: paket & harga, tombol beli **lynk.id**, aktivasi token, tabel biaya token, impor pesanan (admin) | FR-16 (monetisasi) |
+
+## Integrasi lynk.id & sistem token
+
+Penjualan paket Pro memakai **lynk.id**. Konfigurasi produk & biaya token ada di `lib/tokens.js` (semua angka = **asumsi**, mudah diubah).
+
+- **Produk:** `AsetTrack Pro — 50 Token`, harga **Rp49.000**, checkout: `https://lynk.id/lensetek/1dzzgxkxlqkg/checkout`.
+- **Token = kuota aksi premium.** Aksi inti (impor, scan, update, lihat daftar) **tidak** memakai token.
+- **Biaya token (asumsi):** cetak label 1 token / 50 label · ekspor laporan 1 token / laporan · pengingat WhatsApp 5 token / 100 pesan · anggota tim tambahan 10 token / user / bulan.
+
+### Alur beli → aktivasi → pakai
+1. Pembeli membayar di **lynk.id** (tombol "Beli sekarang" di `/upgrade`).
+2. Admin memuat daftar pesanan lynk.id (ekspor CSV) via kartu **Admin** di `/upgrade` → `POST /api/orders` → tersimpan di tabel `paid_order`.
+3. Pembeli membuka `/upgrade`, mengisi **email** + **kode pesanan** → `POST /api/license/activate`. Setelah cocok, lisensi aktif (tabel `license`) dan **+50 token** tercatat di `token_ledger`.
+4. Aksi premium memotong saldo token; bila token kurang, aksi ditolak (HTTP 402) dengan pesan token tidak cukup.
+
+> **Catatan:** lynk.id free tidak menyediakan webhook, sehingga verifikasi pembayaran bersifat **semi-manual** (kode pesanan). Bila lynk.id menyediakan webhook/API di paket berbayar, alur bisa diotomatiskan.
+
+### Endpoint terkait
+| Endpoint | Fungsi |
+|---|---|
+| `GET /api/license` | Status lisensi + saldo token + riwayat |
+| `POST /api/license/activate` | `{ email, orderRef }` → aktifkan & beri 50 token |
+| `GET /api/orders` | Daftar pesanan lynk.id |
+| `POST /api/orders` | Impor pesanan (body `{ csv }` atau `{ orders }`) |
 
 ## Catatan mockup vs produksi (batas yang disengaja)
 

@@ -4,7 +4,7 @@ import Nav from '@/components/Nav';
 export const metadata = {
   title: 'AsetTrack — Pengelolaan Aset Yayasan',
   description:
-    'Mockup (prototipe UI/UX) AsetTrack: impor, cetak label QR, scan, dan laporan opname aset — Next.js + SQLite3.',
+    'Mockup (prototipe UI/UX) AsetTrack: impor, cetak label QR, scan, dan laporan opname aset — Next.js + Supabase.',
 };
 
 export default function RootLayout({ children }) {

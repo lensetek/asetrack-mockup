@@ -10,6 +10,7 @@ const ITEMS = [
   { href: '/label', label: 'Cetak Label', ic: '🏷️', short: 'Label' },
   { href: '/scan', label: 'Scan Aset', ic: '📷', short: 'Scan' },
   { href: '/laporan', label: 'Laporan', ic: '📄', short: 'Laporan' },
+  { href: '/upgrade', label: 'Upgrade Pro', ic: '⭐', short: 'Pro' },
 ];
 
 export default function Nav() {

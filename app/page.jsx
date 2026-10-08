@@ -7,11 +7,18 @@ import { jfetch, PageHead, Stat, Empty } from '@/components/ui';
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
+  const [lic, setLic] = useState(null);
 
   useEffect(() => {
     jfetch('/api/stats')
       .then(setData)
       .catch((e) => setErr(e.message));
+  }, []);
+
+  useEffect(() => {
+    jfetch('/api/license')
+      .then(setLic)
+      .catch(() => {});
   }, []);
 
   if (err) return <Empty icon="⚠️" text={`Tidak bisa memuat data: ${err}`} />;
@@ -28,6 +35,25 @@ export default function Dashboard() {
         <Stat icon="🏷️" num={s.printed} label="Label tercetak" tone="info" />
         <Stat icon="📷" num={s.scanned} label="Sudah discan" tone="ok" />
         <Stat icon="🔧" num={s.rusak} label="Perlu perbaikan" tone="bad" />
+      </div>
+
+      <div className="section">
+        <div className="card">
+          <div className="row" style={{ justifyContent: 'space-between' }}>
+            <h2 className="card-title" style={{ margin: 0 }}>
+              {lic?.active ? `⭐ Paket ${lic.license.plan} aktif` : '⭐ Coba AsetTrack Pro'}
+            </h2>
+            {lic?.active && <span className="badge ok">{lic.license.token_balance} token</span>}
+          </div>
+          <p className="card-sub" style={{ marginTop: 6 }}>
+            {lic?.active
+              ? 'Token Anda dipakai untuk aksi premium (ekspor laporan, cetak label, pengingat WhatsApp).'
+              : 'Beli paket Pro (Rp49.000 = 50 token) untuk membuka aksi premium. Aksi inti tetap gratis.'}
+          </p>
+          <Link className="btn btn-primary btn-block" href="/upgrade">
+            {lic?.active ? 'Lihat token & upgrade' : 'Lihat paket & beli token'}
+          </Link>
+        </div>
       </div>
 
       <div className="section">
