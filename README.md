@@ -2,19 +2,31 @@
 
 Prototipe antarmuka **AsetTrack** untuk siklus opname aset yayasan, sesuai **PRD v1.0** (Minimum Lovable Loop) dan **Full Project Plan Agile** tim 5 orang.
 
-**Stack:** Next.js (App Router) · SQLite (`better-sqlite3`, fallback otomatis `node:sqlite`) · React · `qrcode`.
+**Stack:** Next.js (App Router) · **Supabase (Postgres)** · React · `qrcode`.
+
+> **Riwayat:** awalnya mockup memakai SQLite lokal (`better-sqlite3` / `node:sqlite`). Seluruh data lokal (1 organisasi · 19 aset · 25 aktivitas) kini **dimigrasikan ke Supabase** (project `bewrqibazwwlfyasdjrj`) pada tabel `organization`, `asset`, `activity` — agar dapat dideploy ke Netlify (filesystem ephemeral).
 
 ## Menjalankan
 
 ```bash
-npm install        # sekali
-npm run dev        # http://localhost:3000
-npm run build      # build produksi
-npm start          # jalankan hasil build
-npm run seed       # (opsional) inisialisasi ulang DB contoh
+cp .env.example .env.local   # isi SUPABASE_URL + SUPABASE_ANON_KEY
+npm install                  # sekali
+npm run dev                  # http://localhost:3000
+npm run build                # build produksi
+npm start                    # jalankan hasil build
 ```
 
-Database tersimpan di `data/aset.db` (dibuat otomatis + di-seed 18 aset contoh yayasan saat pertama kali dijalankan).
+Konfigurasi koneksi Supabase dibaca dari environment (`SUPABASE_URL`, `SUPABASE_ANON_KEY`), lihat `.env.example`. Kredensial asli disimpan di `.env.local` (tidak di-commit).
+
+### Skema database (Supabase)
+
+| Tabel | Isi |
+|---|---|
+| `organization` | Data yayasan (nama, jenis, plan) |
+| `asset` | Aset: `code` (unik), nama, kategori, lokasi, PIC, nilai, kondisi, status, status cetak, jumlah scan |
+| `activity` | Audit trail aksi: SCAN / UPDATE_KONDISI / PINDAH / PINJAM / KEMBALI / CETAK / EXPORT |
+
+> **Catatan keamanan (mockup):** karena belum ada autentikasi, RLS diaktifkan dengan policy longgar untuk role `anon`. **Perketat** (batasi per user/organisasi) begitu Supabase Auth diaktifkan.
 
 ## Halaman (alur MLL: impor → label → scan → update → laporan)
 
@@ -31,7 +43,7 @@ Database tersimpan di `data/aset.db` (dibuat otomatis + di-seed 18 aset contoh y
 
 - **Kamera = simulasi.** Klik "Scan label" → animasi → aset berikutnya yang belum discan. Versi produksi: kamera PWA offline-first.
 - **Import = CSV.** Versi produksi: Excel (.xlsx) dengan error per-baris penuh.
-- **Satu tenant + database file lokal.** Isolasi multi-tenant & auth penuh di luat mockup (FR-21).
+- **Satu tenant.** Isolasi multi-tenant & auth penuh di luar mockup (FR-21); saat ini akses via key anon dengan RLS longgar (lihat catatan skema di atas).
 - **UI mengikuti NFR-06**: mobile-first, Bahasa Indonesia sederhana, tombol ≥48px, kontras tinggi, pesan error menuntun.
 - Setiap aksi tercatat di tabel `activity` (audit trail) — dasar metrik aktivasi (FR-18/19).
 
@@ -41,9 +53,9 @@ Database tersimpan di `data/aset.db` (dibuat otomatis + di-seed 18 aset contoh y
 app/
   page.jsx              # Beranda
   aset/  impor/  label/  scan/  laporan/   # halaman
-  api/                  # Route handlers (SQLite)
+  api/                  # Route handlers (Supabase)
     assets/ import/ action/ print/ export/ stats/
-lib/db.js               # koneksi SQLite + migrasi + seed (PRAGMA WAL)
+lib/db.js               # lapisan data Supabase (organization/asset/activity)
 components/             # Nav, ui (badge, stat, toast, dst)
 ```
 

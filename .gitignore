@@ -18,3 +18,4 @@ data/*.db-shm
 npm-debug.log*
 .env*
 .env*.local
+!.env.example

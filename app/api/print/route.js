@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { markPrinted } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 // POST /api/print — { ids: [..] } tandai label tercetak
 export async function POST(request) {
-  const db = getDb();
   let body;
   try {
     body = await request.json();
@@ -15,17 +14,10 @@ export async function POST(request) {
   const ids = Array.isArray(body.ids) ? body.ids.map(Number).filter(Boolean) : [];
   if (!ids.length) return NextResponse.json({ error: 'Tidak ada label dipilih.' }, { status: 400 });
 
-  const now = new Date().toISOString();
-  const upd = db.prepare("UPDATE asset SET print_status = 'SUDAH', updated_at = ? WHERE id = ?");
-  const log = db.prepare('INSERT INTO activity (asset_id, action, from_value, to_value, actor, created_at) VALUES (?, ?, ?, ?, ?, ?)');
-
-  const tx = db.transaction((list) => {
-    for (const id of list) {
-      upd.run(now, id);
-      log.run(id, 'CETAK', 'BELUM', 'SUDAH', 'Admin (demo)', now);
-    }
-  });
-  tx(ids);
-
-  return NextResponse.json({ ok: true, updated: ids.length });
+  try {
+    const result = await markPrinted(ids);
+    return NextResponse.json(result);
+  } catch (e) {
+    return NextResponse.json({ error: 'Gagal menandai label', detail: String(e.message || e) }, { status: 500 });
+  }
 }

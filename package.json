@@ -2,15 +2,14 @@
   "name": "asetrack-mockup",
   "version": "0.1.0",
   "private": true,
-  "description": "UI/UX Mockup (prototipe interaktif) AsetTrack MLL — Next.js + SQLite3. Bahasa Indonesia, mobile-first, persona non-tech.",
+  "description": "UI/UX Mockup (prototipe interaktif) AsetTrack MLL — Next.js + Supabase (Postgres). Bahasa Indonesia, mobile-first, persona non-tech.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "seed": "node lib/db.js"
+    "start": "next start"
   },
   "dependencies": {
-    "better-sqlite3": "^13.0.3",
+    "@supabase/supabase-js": "^2.45.0",
     "next": "^15.3.4",
     "qrcode": "^1.5.4",
     "react": "^19.1.0",

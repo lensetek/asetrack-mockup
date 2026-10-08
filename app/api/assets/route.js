@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { listAssets, countAssets } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,33 +22,18 @@ function toAsset(r) {
 }
 
 export async function GET(request) {
-  const db = getDb();
-  const { searchParams } = new URL(request.url);
-  const q = searchParams.get('q') || '';
-  const lokasi = searchParams.get('lokasi') || '';
-  const kondisi = searchParams.get('kondisi') || '';
-  const printed = searchParams.get('printed') || '';
-  const scanned = searchParams.get('scanned') || '';
-
-  const sql = [];
-  const params = [];
-  if (q) {
-    sql.push('(code LIKE ? OR name LIKE ? OR category LIKE ?)');
-    const like = `%${q}%`;
-    params.push(like, like, like);
+  try {
+    const { searchParams } = new URL(request.url);
+    const rows = await listAssets({
+      q: searchParams.get('q') || '',
+      lokasi: searchParams.get('lokasi') || '',
+      kondisi: searchParams.get('kondisi') || '',
+      printed: searchParams.get('printed') || '',
+      scanned: searchParams.get('scanned') || '',
+    });
+    const total = await countAssets();
+    return NextResponse.json({ assets: rows.map(toAsset), total });
+  } catch (e) {
+    return NextResponse.json({ error: 'Gagal memuat aset', detail: String(e.message || e) }, { status: 500 });
   }
-  if (lokasi) { sql.push('location = ?'); params.push(lokasi); }
-  if (kondisi) { sql.push('condition = ?'); params.push(kondisi); }
-  if (printed === 'SUDAH') sql.push("print_status = 'SUDAH'");
-  if (printed === 'BELUM') sql.push("print_status = 'BELUM'");
-  if (scanned === 'ADA') sql.push('scanned_count > 0');
-  if (scanned === 'KOSONG') sql.push('scanned_count = 0');
-
-  const where = sql.length ? `WHERE ${sql.join(' AND ')}` : '';
-  const rows = db
-    .prepare(`SELECT * FROM asset ${where} ORDER BY code`)
-    .all(...params);
-  const total = db.prepare('SELECT COUNT(*) AS n FROM asset').get().n;
-
-  return NextResponse.json({ assets: rows.map(toAsset), total });
 }
