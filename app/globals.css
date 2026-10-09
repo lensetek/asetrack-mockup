@@ -329,3 +329,28 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
   .scanline { animation: none; top: 12px; }
   * { transition: none !important; }
 }
+
+/* ---------- auth (login/register) ---------- */
+.auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+.auth-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 22px; width: 100%; max-width: 420px;
+}
+.auth-brand { font-weight: 800; color: var(--brand); font-size: 18px; margin-bottom: 10px; }
+.auth-card h1 { font-size: 22px; margin: 0 0 4px; }
+.auth-alt { text-align: center; margin: 14px 0 0; font-size: 14px; }
+.auth-alt a { color: var(--brand); font-weight: 700; }
+.note.bad { background: var(--bad-soft); border-color: #f0b8b4; color: var(--bad); }
+
+.field select, .field input, .field textarea {
+  width: 100%; padding: 11px 12px; font-size: 15px; border: 1px solid var(--line);
+  border-radius: 10px; background: #fff; color: var(--ink); font-family: inherit;
+}
+
+.nav-actions { display: flex; align-items: center; gap: 8px; }
+.nav-user { font-size: 13px; color: var(--muted); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-logout {
+  background: transparent; border: 1px solid var(--line); color: var(--ink);
+  border-radius: 10px; padding: 7px 12px; font-size: 13px; cursor: pointer;
+}
+.btn-logout:hover { background: var(--brand-soft); border-color: var(--brand); }

@@ -39,7 +39,8 @@ export async function POST(request) {
       return NextResponse.json({
         ok: true,
         message: 'Aktivasi berhasil! Token Anda sudah ditambahkan.',
-        token_balance: result.license.token_balance,
+        token_balance: result.token_balance,
+        plan: result.plan,
       });
     }
     return NextResponse.json({ error: 'Aktivasi gagal.' }, { status: 400 });

@@ -37,24 +37,26 @@ export default function Dashboard() {
         <Stat icon="🔧" num={s.rusak} label="Perlu perbaikan" tone="bad" />
       </div>
 
-      <div className="section">
-        <div className="card">
-          <div className="row" style={{ justifyContent: 'space-between' }}>
-            <h2 className="card-title" style={{ margin: 0 }}>
-              {lic?.active ? `⭐ Paket ${lic.license.plan} aktif` : '⭐ Coba AsetTrack Pro'}
-            </h2>
-            {lic?.active && <span className="badge ok">{lic.license.token_balance} token</span>}
+      {lic && (
+        <div className="section">
+          <div className="card">
+            <div className="row" style={{ justifyContent: 'space-between' }}>
+              <h2 className="card-title" style={{ margin: 0 }}>
+                {lic.plan === 'PRO' ? '⭐ Paket Pro aktif' : '⭐ Paket Gratis'}
+              </h2>
+              {lic.plan === 'PRO' && <span className="badge ok">{lic.license?.token_balance ?? 0} token</span>}
+            </div>
+            <p className="card-sub" style={{ marginTop: 6 }}>
+              {lic.plan === 'PRO'
+                ? `Kuota ${lic.usage.assets}/${lic.limits.maxAssets} aset. Token dipakai untuk ekspor laporan, pengingat WhatsApp, & anggota tim.`
+                : `Kuota ${lic.usage.assets}/${lic.limits.maxAssets} aset · ekspor laporan ${lic.usage.exports}/${lic.limits.maxExports}×. Upgrade ke Pro untuk 5.000 aset & 50 token.`}
+            </p>
+            <Link className="btn btn-primary btn-block" href="/upgrade">
+              {lic.plan === 'PRO' ? 'Lihat token & upgrade' : 'Lihat paket & beli token'}
+            </Link>
           </div>
-          <p className="card-sub" style={{ marginTop: 6 }}>
-            {lic?.active
-              ? 'Token Anda dipakai untuk aksi premium (ekspor laporan, cetak label, pengingat WhatsApp).'
-              : 'Beli paket Pro (Rp49.000 = 50 token) untuk membuka aksi premium. Aksi inti tetap gratis.'}
-          </p>
-          <Link className="btn btn-primary btn-block" href="/upgrade">
-            {lic?.active ? 'Lihat token & upgrade' : 'Lihat paket & beli token'}
-          </Link>
         </div>
-      </div>
+      )}
 
       <div className="section">
         <div className="card">

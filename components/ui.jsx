@@ -79,6 +79,12 @@ export async function jfetch(url, opts = {}) {
     headers: { 'Content-Type': 'application/json' },
     ...opts,
   });
-  if (!res.ok) throw new Error(`Gagal (${res.status})`);
-  return res.json();
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+  if (!res.ok) throw new Error(data?.error || `Gagal (${res.status})`);
+  return data;
 }
